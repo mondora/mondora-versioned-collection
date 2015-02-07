@@ -6,6 +6,7 @@ var sinon = Npm.require("sinon");
 */
 
 Tinytest.add("ruleEngine - setupRuleEngine - setup", function (test) {
+    // BEFORE
     var instance = {};
     // TEST
     ruleEngine.setupRuleEngine(instance);
@@ -26,6 +27,7 @@ Tinytest.add("ruleEngine - setupRuleEngine - setup", function (test) {
 */
 
 Tinytest.add("ruleEngine - registerRules - single registration", function (test) {
+    // BEFORE
     var instance = {};
     ruleEngine.setupRuleEngine(instance);
     // TEST
@@ -38,6 +40,7 @@ Tinytest.add("ruleEngine - registerRules - single registration", function (test)
 });
 
 Tinytest.add("ruleEngine - registerRules - multiple registration", function (test) {
+    // BEFORE
     var instance = {};
     ruleEngine.setupRuleEngine(instance);
     // TEST
@@ -60,6 +63,7 @@ Tinytest.add("ruleEngine - registerRules - multiple registration", function (tes
 */
 
 Tinytest.add("ruleEngine - runRules - single rule", function (test) {
+    // BEFORE
     var instance = {};
     ruleEngine.setupRuleEngine(instance);
     var insert = sinon.spy(R.T);
@@ -78,6 +82,7 @@ Tinytest.add("ruleEngine - runRules - single rule", function (test) {
 });
 
 Tinytest.add("ruleEngine - runRules - multiple rules", function (test) {
+    // BEFORE
     var instance = {};
     ruleEngine.setupRuleEngine(instance);
     var insert = sinon.spy(R.T);

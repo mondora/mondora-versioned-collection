@@ -22,6 +22,7 @@ Tinytest.add("methods - insert - argument type checking", function (test) {
 });
 
 Tinytest.add("methods - insert - allow rules", function (test) {
+    // BEFORE
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.F
@@ -37,6 +38,7 @@ Tinytest.add("methods - insert - allow rules", function (test) {
 });
 
 Tinytest.add("methods - insert - deny rules", function (test) {
+    // BEFORE
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -53,6 +55,7 @@ Tinytest.add("methods - insert - deny rules", function (test) {
 });
 
 Tinytest.add("methods - insert - call insert", function (test) {
+    // BEFORE
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -91,6 +94,7 @@ Tinytest.add("methods - commit - argument type checking", function (test) {
 });
 
 Tinytest.add("methods - commit - allow rules", function (test) {
+    // BEFORE
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.F,
@@ -111,6 +115,7 @@ Tinytest.add("methods - commit - allow rules", function (test) {
 });
 
 Tinytest.add("methods - commit - deny rules", function (test) {
+    // BEFORE
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -132,6 +137,7 @@ Tinytest.add("methods - commit - deny rules", function (test) {
 });
 
 Tinytest.add("methods - commit - call commit", function (test) {
+    // BEFORE
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,

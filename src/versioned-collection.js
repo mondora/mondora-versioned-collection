@@ -28,7 +28,8 @@ var R   = Npm.require("ramda");
 *
 */
 
-var VersionedCollection = function (name, latestSchema) {
+VersionedCollection = function (name, latestSchema) {
+    this._name = name;
     this._collection = new Mongo.Collection(name);
     this._schema = latestSchema || Match.Any;
     this._registerMethods();
@@ -55,7 +56,7 @@ VersionedCollection.prototype = {
             postLatest
         );
         // Return true if any of the allow calls returns true
-        return R.any(result, R.identity);
+        return R.any(R.identity, result);
     },
 
     _runDenyRules: function (method, userId, preLatest, postLatest) {
@@ -68,14 +69,17 @@ VersionedCollection.prototype = {
             postLatest
         );
         // Return true if any of the deny calls returns true
-        return R.any(result, R.identity);
+        return R.any(R.identity, result);
     },
 
     insert: function (userId, delta, message) {
         // Construct the post latest objects
         var postLatest = jdp.patch({}, delta);
-        // Check it matches the schema
-        check(postLatest, this._schema);
+        // Ensure it matches the schema
+        utils.ensure(
+            Match.test(postLatest, this._schema),
+            "Latest after commit doesn't match schema, aborting"
+        );
         // Perform the insert
         var now = Date.now();
         return this._collection.insert({
@@ -95,8 +99,11 @@ VersionedCollection.prototype = {
         // Construct the post latest objects
         var doc = this._collection.findOne({_id: documentId});
         var postLatest = jdp.patch(R.clone(doc.latest), delta);
-        // Check it matches the schema
-        check(postLatest, this._schema);
+        // Ensure it matches the schema
+        utils.ensure(
+            Match.test(postLatest, this._schema),
+            "Latest after commit doesn't match schema, aborting"
+        );
         // Perform the update
         var now = Date.now();
         this._collection.update({_id: documentId}, {
@@ -118,8 +125,8 @@ VersionedCollection.prototype = {
 
     _registerMethods: function () {
         var self = this;
-        var insertMethodName = "VersionedCollection:" + name + ":insert";
-        var commitMethodName = "VersionedCollection:" + name + ":commit";
+        var insertMethodName = "VersionedCollection:" + this._name + ":insert";
+        var commitMethodName = "VersionedCollection:" + this._name + ":commit";
         var meteorMethods = {};
         meteorMethods[insertMethodName] = function (delta, message) {
             methods.insert(self, delta, message);
