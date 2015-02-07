@@ -12,6 +12,7 @@ Package.onUse(function (api) {
     api.export("VersionedCollection", "server");
     // Package files
     api.addFiles([
+        "src/utils.js",
         "src/methods.js",
         "src/rule-engine.js",
         "src/versioned-collection.js"
@@ -24,21 +25,21 @@ Package.onTest(function (api) {
     api.use("tinytest");
     // Package files
     api.addFiles([
+        "src/utils.js",
         "src/methods.js",
         "src/rule-engine.js",
         "src/versioned-collection.js"
     ], "server");
     // Test files
-    /*
     api.addFiles([
-        "test/server/utils.unit.js",
-        "test/server/methods.unit.js",
-        "test/server/publications.unit.js"
+        "test/methods.unit.js"
+        //"test/server/methods.unit.js",
+        //"test/server/publications.unit.js"
     ], "server");
-    */
 });
 
 Npm.depends({
     "ramda": "0.9.1",
-    "jsondiffpatch": "0.1.27"
+    "jsondiffpatch": "0.1.27",
+    "sinon": "1.12.2"
 });

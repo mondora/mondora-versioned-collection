@@ -1,9 +1,18 @@
+var jdp = Npm.require("jsondiffpatch");
+var R   = Npm.require("ramda");
+
 methods = {
 
     insert: function (instance, delta, message) {
         // Type-checking arguments
-        check(delta, Object);
-        check(message, String);
+        utils.ensure(
+            R.is(Object, delta),
+            "First parameter `delta` must be an object"
+        );
+        utils.ensure(
+            R.is(String, message),
+            "Second parameter `message` must be a string"
+        );
         // Construct the post latest objects
         var postLatest = jdp.patch({}, delta);
         // Run allow rules
@@ -13,7 +22,10 @@ methods = {
             null,
             R.clone(postLatest)
         );
-        assert(allowed, true);
+        utils.ensure(
+            R.eq(true, allowed),
+            "No allow rule returned true, aborting"
+        );
         // Run deny rules
         var denied = instance._runDenyRules(
             "insert",
@@ -21,16 +33,28 @@ methods = {
             null,
             R.clone(postLatest)
         );
-        assert(denied, false);
+        utils.ensure(
+            R.eq(false, denied),
+            "Some deny rule(s) returned true, aborting"
+        );
         // Perform the insert
         return instance.insert(this.userId, delta, message);
     },
 
     commit: function (instance, documentId, delta, message) {
         // Type-checking arguments
-        check(documentId, String);
-        check(delta, Object);
-        check(message, String);
+        utils.ensure(
+            R.is(String, documentId),
+            "First parameter `documentId` must be a string"
+        );
+        utils.ensure(
+            R.is(Object, delta),
+            "Second parameter `delta` must be an object"
+        );
+        utils.ensure(
+            R.is(String, message),
+            "Third parameter `message` must be a string"
+        );
         // Construct the pre and post latest objects
         var doc = instance._collection.findOne({_id: documentId});
         var preLatest = R.clone(doc.latest);
@@ -42,7 +66,10 @@ methods = {
             R.clone(preLatest),
             R.clone(postLatest)
         );
-        assert(allowed, true);
+        utils.ensure(
+            R.eq(true, allowed),
+            "No allow rule returned true, aborting"
+        );
         // Run deny rules
         var denied = instance._runDenyRules(
             "commit",
@@ -50,7 +77,10 @@ methods = {
             R.clone(preLatest),
             R.clone(postLatest)
         );
-        assert(denied, false);
+        utils.ensure(
+            R.eq(false, denied),
+            "Some deny rule(s) returned true, aborting"
+        );
         // Perform the commit
         return instance.commit(this.userId, documentId, delta, message);
     }
