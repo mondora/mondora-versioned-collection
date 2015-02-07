@@ -5,7 +5,7 @@ var sinon = Npm.require("sinon");
 *   insert method
 */
 
-Tinytest.add("insert method - argument type checking", function (test) {
+Tinytest.add("methods - insert - argument type checking", function (test) {
     // TEST
     test.throws(R.lPartial(methods.insert, {}), function (e) {
         return (
@@ -21,7 +21,7 @@ Tinytest.add("insert method - argument type checking", function (test) {
     });
 });
 
-Tinytest.add("insert method - allow rules", function (test) {
+Tinytest.add("methods - insert - allow rules", function (test) {
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.F
@@ -36,7 +36,7 @@ Tinytest.add("insert method - allow rules", function (test) {
     });
 });
 
-Tinytest.add("insert method - deny rules", function (test) {
+Tinytest.add("methods - insert - deny rules", function (test) {
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -52,7 +52,7 @@ Tinytest.add("insert method - deny rules", function (test) {
     });
 });
 
-Tinytest.add("insert method - call insert", function (test) {
+Tinytest.add("methods - insert - call insert", function (test) {
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -68,7 +68,7 @@ Tinytest.add("insert method - call insert", function (test) {
 *   commit method
 */
 
-Tinytest.add("commit method - argument type checking", function (test) {
+Tinytest.add("methods - commit - argument type checking", function (test) {
     // TEST
     test.throws(R.lPartial(methods.commit, {}), function (e) {
         return (
@@ -90,7 +90,7 @@ Tinytest.add("commit method - argument type checking", function (test) {
     });
 });
 
-Tinytest.add("commit method - allow rules", function (test) {
+Tinytest.add("methods - commit - allow rules", function (test) {
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.F,
@@ -110,7 +110,7 @@ Tinytest.add("commit method - allow rules", function (test) {
     });
 });
 
-Tinytest.add("commit method - deny rules", function (test) {
+Tinytest.add("methods - commit - deny rules", function (test) {
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -131,7 +131,7 @@ Tinytest.add("commit method - deny rules", function (test) {
     });
 });
 
-Tinytest.add("commit method - call commit", function (test) {
+Tinytest.add("methods - commit - call commit", function (test) {
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,

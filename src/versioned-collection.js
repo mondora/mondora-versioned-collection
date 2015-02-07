@@ -32,6 +32,7 @@ var VersionedCollection = function (name, latestSchema) {
     this._collection = new Mongo.Collection(name);
     this._schema = latestSchema || Match.Any;
     this._registerMethods();
+    ruleEngine.setupRuleEngine(this);
 };
 
 VersionedCollection.prototype = {
