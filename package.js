@@ -32,9 +32,9 @@ Package.onTest(function (api) {
     ], "server");
     // Test files
     api.addFiles([
-        "test/methods.unit.js",
-        "test/rule-engine.unit.js",
         "test/utils.unit.js",
+        "test/rule-engine.unit.js",
+        "test/methods.unit.js",
         "test/versioned-collection.unit.js"
     ], "server");
 });

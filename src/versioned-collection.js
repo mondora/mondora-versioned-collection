@@ -28,23 +28,15 @@ var R   = Npm.require("ramda");
 *
 */
 
-VersionedCollection = function (name, latestSchema) {
+VersionedCollection = function (name, schema) {
     this._name = name;
     this._collection = new Mongo.Collection(name);
-    this._schema = latestSchema || Match.Any;
+    this._schema = schema || Match.Any;
     this._registerMethods();
     ruleEngine.setupRuleEngine(this);
 };
 
 VersionedCollection.prototype = {
-
-    allow: function (ruleSet) {
-        ruleEngine.registerRules(this, "allow", ruleSet);
-    },
-
-    deny: function (ruleSet) {
-        ruleEngine.registerRules(this, "deny", ruleSet);
-    },
 
     _runAllowRules: function (method, userId, preLatest, postLatest) {
         var result = ruleEngine.runRules(
@@ -70,6 +62,28 @@ VersionedCollection.prototype = {
         );
         // Return true if any of the deny calls returns true
         return R.any(R.identity, result);
+    },
+
+    _registerMethods: function () {
+        var self = this;
+        var insertMethodName = "VersionedCollection:" + this._name + ":insert";
+        var commitMethodName = "VersionedCollection:" + this._name + ":commit";
+        var meteorMethods = {};
+        meteorMethods[insertMethodName] = function (delta, message) {
+            methods.insert(self, delta, message);
+        };
+        meteorMethods[commitMethodName] = function (documentId, delta, message) {
+            methods.commit(self, documentId, delta, message);
+        };
+        Meteor.methods(meteorMethods);
+    },
+
+    allow: function (ruleSet) {
+        ruleEngine.registerRules(this, "allow", ruleSet);
+    },
+
+    deny: function (ruleSet) {
+        ruleEngine.registerRules(this, "deny", ruleSet);
     },
 
     insert: function (userId, delta, message) {
@@ -106,7 +120,7 @@ VersionedCollection.prototype = {
         );
         // Perform the update
         var now = Date.now();
-        this._collection.update({_id: documentId}, {
+        return this._collection.update({_id: documentId}, {
             $addToSet: {
                 commits: {
                     userId: userId,
@@ -123,18 +137,12 @@ VersionedCollection.prototype = {
         });
     },
 
-    _registerMethods: function () {
-        var self = this;
-        var insertMethodName = "VersionedCollection:" + this._name + ":insert";
-        var commitMethodName = "VersionedCollection:" + this._name + ":commit";
-        var meteorMethods = {};
-        meteorMethods[insertMethodName] = function (delta, message) {
-            methods.insert(self, delta, message);
-        };
-        meteorMethods[commitMethodName] = function (documentId, delta, message) {
-            methods.commit(self, documentId, delta, message);
-        };
-        Meteor.methods(meteorMethods);
+    find: function (selector, options) {
+        return this._collection.find(selector, options);
+    },
+
+    findOne: function (selector, options) {
+        return this._collection.findOne(selector, options);
     }
 
 };

@@ -24,38 +24,6 @@ Tinytest.add("VersionedCollection - constructor - constructor", function (test) 
 });
 
 /*
-*   VersionedCollection.prototype.allow
-*/
-
-Tinytest.add("VersionedCollection - allow - proxy", function (test) {
-    // BEFORE
-    sinon.stub(ruleEngine, "registerRules");
-    var instance = {};
-    var ruleSet = {};
-    // TEST
-    VersionedCollection.prototype.allow.call(instance, ruleSet);
-    test.isTrue(ruleEngine.registerRules.calledWith(instance, "allow", ruleSet));
-    // AFTER
-    ruleEngine.registerRules.restore();
-});
-
-/*
-*   VersionedCollection.prototype.deny
-*/
-
-Tinytest.add("VersionedCollection - deny - proxy", function (test) {
-    // BEFORE
-    sinon.stub(ruleEngine, "registerRules");
-    var instance = {};
-    var ruleSet = {};
-    // TEST
-    VersionedCollection.prototype.deny.call(instance, ruleSet);
-    test.isTrue(ruleEngine.registerRules.calledWith(instance, "deny", ruleSet));
-    // AFTER
-    ruleEngine.registerRules.restore();
-});
-
-/*
 *   VersionedCollection.prototype._runAllowRules
 */
 
@@ -101,6 +69,94 @@ Tinytest.add("VersionedCollection - _runDenyRules - zero true", function (test) 
     test.isFalse(result);
     // AFTER
     ruleEngine.runRules.restore();
+});
+
+/*
+*   VersionedCollection.prototype._registerMethods
+*/
+
+Tinytest.add("VersionedCollection - _registerMethods - registration", function (test) {
+    // BEFORE
+    var instance = {
+        _name: "collectionName"
+    };
+    sinon.stub(Meteor, "methods");
+    // TEST
+    VersionedCollection.prototype._registerMethods.call(instance);
+    test.isTrue(Meteor.methods.called);
+    var meteorMethods = Meteor.methods.firstCall.args[0];
+    test.isTrue(R.has("VersionedCollection:collectionName:insert", meteorMethods));
+    test.isTrue(R.has("VersionedCollection:collectionName:commit", meteorMethods));
+    // AFTER
+    Meteor.methods.restore();
+});
+
+/*
+*   VersionedCollection.prototype.allow
+*/
+
+Tinytest.add("VersionedCollection - allow - proxy", function (test) {
+    // BEFORE
+    sinon.stub(ruleEngine, "registerRules");
+    var instance = {};
+    var ruleSet = {};
+    // TEST
+    VersionedCollection.prototype.allow.call(instance, ruleSet);
+    test.isTrue(ruleEngine.registerRules.calledWith(instance, "allow", ruleSet));
+    // AFTER
+    ruleEngine.registerRules.restore();
+});
+
+/*
+*   VersionedCollection.prototype.deny
+*/
+
+Tinytest.add("VersionedCollection - deny - proxy", function (test) {
+    // BEFORE
+    sinon.stub(ruleEngine, "registerRules");
+    var instance = {};
+    var ruleSet = {};
+    // TEST
+    VersionedCollection.prototype.deny.call(instance, ruleSet);
+    test.isTrue(ruleEngine.registerRules.calledWith(instance, "deny", ruleSet));
+    // AFTER
+    ruleEngine.registerRules.restore();
+});
+
+/*
+*   VersionedCollection.prototype.find
+*/
+
+Tinytest.add("VersionedCollection - find - proxy", function (test) {
+    // BEFORE
+    var instance = {
+        _collection: {
+            find: sinon.spy()
+        }
+    };
+    var selector = {};
+    var options = {};
+    // TEST
+    VersionedCollection.prototype.find.call(instance, selector, options);
+    test.isTrue(instance._collection.find.calledWith(selector, options));
+});
+
+/*
+*   VersionedCollection.prototype.findOne
+*/
+
+Tinytest.add("VersionedCollection - findOne - proxy", function (test) {
+    // BEFORE
+    var instance = {
+        _collection: {
+            findOne: sinon.spy()
+        }
+    };
+    var selector = {};
+    var options = {};
+    // TEST
+    VersionedCollection.prototype.findOne.call(instance, selector, options);
+    test.isTrue(instance._collection.findOne.calledWith(selector, options));
 });
 
 /*
@@ -183,24 +239,4 @@ Tinytest.add("VersionedCollection - commit - call _collection.commit", function 
     test.isTrue(instance._collection.update.called);
     // AFTER
     Match.test.restore();
-});
-
-/*
-*   VersionedCollection.prototype._registerMethods
-*/
-
-Tinytest.add("VersionedCollection - _registerMethods - registration", function (test) {
-    // BEFORE
-    var instance = {
-        _name: "collectionName"
-    };
-    sinon.stub(Meteor, "methods");
-    // TEST
-    VersionedCollection.prototype._registerMethods.call(instance);
-    test.isTrue(Meteor.methods.called);
-    var meteorMethods = Meteor.methods.firstCall.args[0];
-    test.isTrue(R.has("VersionedCollection:collectionName:insert", meteorMethods));
-    test.isTrue(R.has("VersionedCollection:collectionName:commit", meteorMethods));
-    // AFTER
-    Meteor.methods.restore();
 });
