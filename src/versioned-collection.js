@@ -86,10 +86,10 @@ VersionedCollection.prototype = {
         ruleEngine.registerRules(this, "deny", ruleSet);
     },
 
-    insert: function (userId, delta, message) {
-        // Construct the post latest objects
-        var postLatest = jdp.patch({}, delta);
-        // Ensure it matches the schema
+    insert: function (userId, postLatest, message) {
+        // Construct the delta object
+        var delta = jdp.diff({}, postLatest);
+        // Ensure postLatest matches the schema
         utils.ensure(
             Match.test(postLatest, this._schema),
             "Latest after commit doesn't match schema, aborting"
@@ -110,7 +110,7 @@ VersionedCollection.prototype = {
     },
 
     commit: function (userId, documentId, delta, message) {
-        // Construct the post latest objects
+        // Construct the post latest object
         var doc = this._collection.findOne({_id: documentId});
         var postLatest = jdp.patch(R.clone(doc.latest), delta);
         // Ensure it matches the schema
