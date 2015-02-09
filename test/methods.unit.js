@@ -10,7 +10,7 @@ Tinytest.add("methods - insert - argument type checking", function (test) {
     test.throws(R.lPartial(methods.insert, {}), function (e) {
         return (
             e.errorType === "Meteor.Error" &&
-            e.reason === "First parameter `delta` must be an object"
+            e.reason === "First parameter `postLatest` must be an object"
         );
     });
     test.throws(R.lPartial(methods.insert, {}, {}), function (e) {

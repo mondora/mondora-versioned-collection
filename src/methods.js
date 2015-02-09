@@ -3,18 +3,16 @@ var R   = Npm.require("ramda");
 
 methods = {
 
-    insert: function (instance, delta, message) {
+    insert: function (instance, postLatest, message) {
         // Type-checking arguments
         utils.ensure(
-            R.is(Object, delta),
-            "First parameter `delta` must be an object"
+            R.is(Object, postLatest),
+            "First parameter `postLatest` must be an object"
         );
         utils.ensure(
             R.is(String, message),
             "Second parameter `message` must be a string"
         );
-        // Construct the post latest objects
-        var postLatest = jdp.patch({}, delta);
         // Run allow rules
         var allowed = instance._runAllowRules(
             "insert",
@@ -38,7 +36,7 @@ methods = {
             "Some deny rule(s) returned true, aborting"
         );
         // Perform the insert
-        return instance.insert(this.userId, delta, message);
+        return instance.insert(this.userId, postLatest, message);
     },
 
     commit: function (instance, documentId, delta, message) {
