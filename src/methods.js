@@ -13,10 +13,14 @@ methods = {
             R.is(String, message),
             "Second parameter `message` must be a string"
         );
+        // Get the userId: we don't user `this.userId` because when cascading
+        // method calls on the server it gets lost, while `Meteor.userId()`
+        // doesn't
+        var userId = Meteor.userId();
         // Run allow rules
         var allowed = instance._runAllowRules(
             "insert",
-            this.userId,
+            userId,
             null,
             R.clone(postLatest)
         );
@@ -27,7 +31,7 @@ methods = {
         // Run deny rules
         var denied = instance._runDenyRules(
             "insert",
-            this.userId,
+            userId,
             null,
             R.clone(postLatest)
         );
@@ -36,7 +40,7 @@ methods = {
             "Some deny rule(s) returned true, aborting"
         );
         // Perform the insert
-        return instance.insert(this.userId, postLatest, message);
+        return instance.insert(userId, postLatest, message);
     },
 
     commit: function (instance, documentId, delta, message) {
@@ -53,6 +57,10 @@ methods = {
             R.is(String, message),
             "Third parameter `message` must be a string"
         );
+        // Get the userId: we don't user `this.userId` because when cascading
+        // method calls on the server it gets lost, while `Meteor.userId()`
+        // doesn't
+        var userId = Meteor.userId();
         // Construct the pre and post latest objects
         var doc = instance._collection.findOne({_id: documentId});
         var preLatest = R.clone(doc.latest);
@@ -60,7 +68,7 @@ methods = {
         // Run allow rules
         var allowed = instance._runAllowRules(
             "commit",
-            this.userId,
+            userId,
             R.clone(preLatest),
             R.clone(postLatest)
         );
@@ -71,7 +79,7 @@ methods = {
         // Run deny rules
         var denied = instance._runDenyRules(
             "commit",
-            this.userId,
+            userId,
             R.clone(preLatest),
             R.clone(postLatest)
         );
@@ -80,7 +88,7 @@ methods = {
             "Some deny rule(s) returned true, aborting"
         );
         // Perform the commit
-        return instance.commit(this.userId, documentId, delta, message);
+        return instance.commit(userId, documentId, delta, message);
     }
 
 };

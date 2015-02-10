@@ -23,6 +23,7 @@ Tinytest.add("methods - insert - argument type checking", function (test) {
 
 Tinytest.add("methods - insert - allow rules", function (test) {
     // BEFORE
+    Meteor.userId = sinon.spy();
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.F
@@ -35,10 +36,13 @@ Tinytest.add("methods - insert - allow rules", function (test) {
             e.reason === "No allow rule returned true, aborting"
         );
     });
+    // AFTER
+    Meteor.userId = null;
 });
 
 Tinytest.add("methods - insert - deny rules", function (test) {
     // BEFORE
+    Meteor.userId = sinon.spy();
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -52,10 +56,13 @@ Tinytest.add("methods - insert - deny rules", function (test) {
             e.reason === "Some deny rule(s) returned true, aborting"
         );
     });
+    // AFTER
+    Meteor.userId = null;
 });
 
 Tinytest.add("methods - insert - call insert", function (test) {
     // BEFORE
+    Meteor.userId = sinon.spy();
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -65,6 +72,8 @@ Tinytest.add("methods - insert - call insert", function (test) {
     // TEST
     methods.insert.call({}, instance, delta, "");
     test.isTrue(instance.insert.called);
+    // AFTER
+    Meteor.userId = null;
 });
 
 /*
@@ -95,6 +104,7 @@ Tinytest.add("methods - commit - argument type checking", function (test) {
 
 Tinytest.add("methods - commit - allow rules", function (test) {
     // BEFORE
+    Meteor.userId = sinon.spy();
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.F,
@@ -112,10 +122,13 @@ Tinytest.add("methods - commit - allow rules", function (test) {
             e.reason === "No allow rule returned true, aborting"
         );
     });
+    // AFTER
+    Meteor.userId = null;
 });
 
 Tinytest.add("methods - commit - deny rules", function (test) {
     // BEFORE
+    Meteor.userId = sinon.spy();
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -134,10 +147,13 @@ Tinytest.add("methods - commit - deny rules", function (test) {
             e.reason === "Some deny rule(s) returned true, aborting"
         );
     });
+    // AFTER
+    Meteor.userId = null;
 });
 
 Tinytest.add("methods - commit - call commit", function (test) {
     // BEFORE
+    Meteor.userId = sinon.spy();
     var delta = {a: ["a"]};
     var instance = {
         _runAllowRules: R.T,
@@ -152,4 +168,6 @@ Tinytest.add("methods - commit - call commit", function (test) {
     // TEST
     methods.commit.call({}, instance, "", delta, "");
     test.isTrue(instance.commit.called);
+    // AFTER
+    Meteor.userId = null;
 });
