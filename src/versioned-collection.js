@@ -109,10 +109,10 @@ VersionedCollection.prototype = {
         });
     },
 
-    commit: function (userId, documentId, delta, message) {
+    commit: function (userId, documentId, postLatest, message) {
         // Construct the post latest object
         var doc = this._collection.findOne({_id: documentId});
-        var postLatest = jdp.patch(R.clone(doc.latest), delta);
+        var delta = jdp.diff(doc.latest, postLatest);
         // Ensure it matches the schema
         utils.ensure(
             Match.test(postLatest, this._schema),

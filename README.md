@@ -26,8 +26,6 @@ var book_v1 = {
     published: "29 July 1954"
 };
 
-var delta = jdp.diff(book_v0, book_v1);
-
 Books.commit(user._id, bookId, book_v1, "Added published field");
 ```
 

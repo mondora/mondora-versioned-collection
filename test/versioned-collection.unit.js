@@ -222,7 +222,7 @@ Tinytest.add("VersionedCollection - commit - schema check", function (test) {
     Match.test.restore();
 });
 
-Tinytest.add("VersionedCollection - commit - call _collection.commit", function (test) {
+Tinytest.add("VersionedCollection - commit - call _collection.update", function (test) {
     // BEFORE
     sinon.stub(Match, "test", R.T);
     var instance = {
