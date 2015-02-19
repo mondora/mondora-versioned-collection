@@ -15,6 +15,7 @@ Package.onUse(function (api) {
         "src/utils.js",
         "src/methods.js",
         "src/rule-engine.js",
+        "src/hooks-engine.js",
         "src/versioned-collection.js"
     ], "server");
 });
@@ -28,6 +29,7 @@ Package.onTest(function (api) {
         "src/utils.js",
         "src/methods.js",
         "src/rule-engine.js",
+        "src/hooks-engine.js",
         "src/versioned-collection.js"
     ], "server");
     // Test files

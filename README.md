@@ -58,3 +58,22 @@ Document structure:
     latest: Object
 }
 ```
+
+###Hooks
+
+Example:
+
+```js
+
+var Books = new VersionedCollection("books");
+
+Books.before({
+    insert: function (userId, postLatest) {
+        this.abort();
+    },
+    commit: function (userId, preLatest, postLatest) {
+        this.abort();
+    }
+});
+
+```
