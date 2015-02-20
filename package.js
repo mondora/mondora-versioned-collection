@@ -35,6 +35,7 @@ Package.onTest(function (api) {
     // Test files
     api.addFiles([
         "test/utils.unit.js",
+        "test/hooks-engine.unit.js",
         "test/rule-engine.unit.js",
         "test/methods.unit.js",
         "test/versioned-collection.unit.js"

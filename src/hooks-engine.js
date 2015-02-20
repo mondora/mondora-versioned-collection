@@ -11,8 +11,8 @@ hooksEngine = {
             insert: [],
             commit: []
         };
-        instance[getPropertyName("insert")] = R.clone(hooksStore);
-        instance[getPropertyName("commit")] = R.clone(hooksStore);
+        instance[getPropertyName("before")] = R.clone(hooksStore);
+        instance[getPropertyName("after")] = R.clone(hooksStore);
     },
 
     registerHooks: function (instance, type, hookSet) {
