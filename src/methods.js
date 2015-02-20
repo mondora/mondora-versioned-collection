@@ -1,4 +1,3 @@
-var jdp = Npm.require("jsondiffpatch");
 var R   = Npm.require("ramda");
 
 methods = {
@@ -43,15 +42,15 @@ methods = {
         return instance.insert(userId, postLatest, message);
     },
 
-    commit: function (instance, documentId, delta, message) {
+    commit: function (instance, documentId, postLatest, message) {
         // Type-checking arguments
         utils.ensure(
             R.is(String, documentId),
             "First parameter `documentId` must be a string"
         );
         utils.ensure(
-            R.is(Object, delta),
-            "Second parameter `delta` must be an object"
+            R.is(Object, postLatest),
+            "Second parameter `postLatest` must be an object"
         );
         utils.ensure(
             R.is(String, message),
@@ -64,7 +63,6 @@ methods = {
         // Construct the pre and post latest objects
         var doc = instance._collection.findOne({_id: documentId});
         var preLatest = R.clone(doc.latest);
-        var postLatest = jdp.patch(R.clone(preLatest), delta);
         // Run allow rules
         var allowed = instance._runAllowRules(
             "commit",
@@ -88,7 +86,7 @@ methods = {
             "Some deny rule(s) returned true, aborting"
         );
         // Perform the commit
-        return instance.commit(userId, documentId, delta, message);
+        return instance.commit(userId, documentId, postLatest, message);
     }
 
 };
