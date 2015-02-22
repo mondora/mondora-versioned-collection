@@ -4,9 +4,9 @@ var getPropertyName = function (type) {
     return "_" + type + "Rules";
 };
 
-ruleEngine = {
+rulesEngine = {
 
-    setupRuleEngine: function (instance) {
+    setupRulesEngine: function (instance) {
         var rulesStore = {
             insert: [],
             commit: []
@@ -21,13 +21,13 @@ ruleEngine = {
         });
     },
 
-    runRules: function (instance, type, method, userId, preLatest, postLatest) {
+    runRules: function (instance, type, method, userId, preLatest, postLatest, message) {
         return instance[getPropertyName(type)][method].map(function (rule) {
             if (method === "insert") {
-                return rule(userId, postLatest);
+                return rule(userId, postLatest, message);
             }
             if (method === "commit") {
-                return rule(userId, preLatest, postLatest);
+                return rule(userId, preLatest, postLatest, message);
             }
         });
     }

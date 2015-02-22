@@ -2,14 +2,14 @@ var R     = Npm.require("ramda");
 var sinon = Npm.require("sinon");
 
 /*
-*   setupRuleEngine
+*   setupRulesEngine
 */
 
-Tinytest.add("ruleEngine - setupRuleEngine - setup", function (test) {
+Tinytest.add("rulesEngine - setupRulesEngine - setup", function (test) {
     // BEFORE
     var instance = {};
     // TEST
-    ruleEngine.setupRuleEngine(instance);
+    rulesEngine.setupRulesEngine(instance);
     test.equal(instance, {
         _allowRules: {
             insert: [],
@@ -26,12 +26,12 @@ Tinytest.add("ruleEngine - setupRuleEngine - setup", function (test) {
 *   registerRules
 */
 
-Tinytest.add("ruleEngine - registerRules - single registration", function (test) {
+Tinytest.add("rulesEngine - registerRules - single registration", function (test) {
     // BEFORE
     var instance = {};
-    ruleEngine.setupRuleEngine(instance);
+    rulesEngine.setupRulesEngine(instance);
     // TEST
-    ruleEngine.registerRules(instance, "allow", {
+    rulesEngine.registerRules(instance, "allow", {
         insert: "insert",
         commit: "commit"
     });
@@ -39,16 +39,16 @@ Tinytest.add("ruleEngine - registerRules - single registration", function (test)
     test.equal(instance._allowRules.commit[0], "commit");
 });
 
-Tinytest.add("ruleEngine - registerRules - multiple registration", function (test) {
+Tinytest.add("rulesEngine - registerRules - multiple registration", function (test) {
     // BEFORE
     var instance = {};
-    ruleEngine.setupRuleEngine(instance);
+    rulesEngine.setupRulesEngine(instance);
     // TEST
-    ruleEngine.registerRules(instance, "allow", {
+    rulesEngine.registerRules(instance, "allow", {
         insert: "insert",
         commit: "commit"
     });
-    ruleEngine.registerRules(instance, "allow", {
+    rulesEngine.registerRules(instance, "allow", {
         insert: "insertAgain",
         commit: "commitAgain"
     });
@@ -62,48 +62,48 @@ Tinytest.add("ruleEngine - registerRules - multiple registration", function (tes
 *   runRules
 */
 
-Tinytest.add("ruleEngine - runRules - single rule", function (test) {
+Tinytest.add("rulesEngine - runRules - single rule", function (test) {
     // BEFORE
     var instance = {};
-    ruleEngine.setupRuleEngine(instance);
+    rulesEngine.setupRulesEngine(instance);
     var insert = sinon.spy(R.T);
     var commit = sinon.spy(R.T);
-    ruleEngine.registerRules(instance, "allow", {
+    rulesEngine.registerRules(instance, "allow", {
         insert: insert,
         commit: commit
     });
     // TEST
-    ruleEngine.runRules(instance, "allow", "insert", "userId", "preLatest", "postLatest");
+    rulesEngine.runRules(instance, "allow", "insert", "userId", "preLatest", "postLatest");
     test.isTrue(insert.calledWith("userId", "postLatest"));
     test.equal(insert.callCount, 1);
-    ruleEngine.runRules(instance, "allow", "commit", "userId", "preLatest", "postLatest");
+    rulesEngine.runRules(instance, "allow", "commit", "userId", "preLatest", "postLatest");
     test.isTrue(commit.calledWith("userId", "preLatest", "postLatest"));
     test.equal(commit.callCount, 1);
 });
 
-Tinytest.add("ruleEngine - runRules - multiple rules", function (test) {
+Tinytest.add("rulesEngine - runRules - multiple rules", function (test) {
     // BEFORE
     var instance = {};
-    ruleEngine.setupRuleEngine(instance);
+    rulesEngine.setupRulesEngine(instance);
     var insert = sinon.spy(R.T);
     var commit = sinon.spy(R.T);
-    ruleEngine.registerRules(instance, "allow", {
+    rulesEngine.registerRules(instance, "allow", {
         insert: insert,
         commit: commit
     });
-    ruleEngine.registerRules(instance, "allow", {
+    rulesEngine.registerRules(instance, "allow", {
         insert: insert,
         commit: commit
     });
-    ruleEngine.registerRules(instance, "allow", {
+    rulesEngine.registerRules(instance, "allow", {
         insert: insert,
         commit: commit
     });
     // TEST
-    ruleEngine.runRules(instance, "allow", "insert", "userId", "preLatest", "postLatest");
+    rulesEngine.runRules(instance, "allow", "insert", "userId", "preLatest", "postLatest");
     test.isTrue(insert.calledWith("userId", "postLatest"));
     test.equal(insert.callCount, 3);
-    ruleEngine.runRules(instance, "allow", "commit", "userId", "preLatest", "postLatest");
+    rulesEngine.runRules(instance, "allow", "commit", "userId", "preLatest", "postLatest");
     test.isTrue(commit.calledWith("userId", "preLatest", "postLatest"));
     test.equal(commit.callCount, 3);
 });

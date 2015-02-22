@@ -24,11 +24,13 @@ Tinytest.add("methods - insert - argument type checking", function (test) {
 Tinytest.add("methods - insert - allow rules", function (test) {
     // BEFORE
     Meteor.userId = sinon.spy();
-    var delta = {a: ["a"]};
-    var instance = {
-        _runAllowRules: R.F
-    };
-    var insert = methods.insert.bind({}, instance, delta, "");
+    var postLatest = {a: "a"};
+    var instance = {};
+    rulesEngine.setupRulesEngine(instance);
+    rulesEngine.registerRules(instance, "allow", {
+        insert: R.F
+    });
+    var insert = methods.insert.bind({}, instance, postLatest, "");
     // TEST
     test.throws(insert, function (e) {
         return (
@@ -43,12 +45,16 @@ Tinytest.add("methods - insert - allow rules", function (test) {
 Tinytest.add("methods - insert - deny rules", function (test) {
     // BEFORE
     Meteor.userId = sinon.spy();
-    var delta = {a: ["a"]};
-    var instance = {
-        _runAllowRules: R.T,
-        _runDenyRules: R.T
-    };
-    var insert = methods.insert.bind({}, instance, delta, "");
+    var postLatest = {a: "a"};
+    var instance = {};
+    rulesEngine.setupRulesEngine(instance);
+    rulesEngine.registerRules(instance, "allow", {
+        insert: R.T
+    });
+    rulesEngine.registerRules(instance, "deny", {
+        insert: R.T
+    });
+    var insert = methods.insert.bind({}, instance, postLatest, "");
     // TEST
     test.throws(insert, function (e) {
         return (
@@ -63,14 +69,19 @@ Tinytest.add("methods - insert - deny rules", function (test) {
 Tinytest.add("methods - insert - call insert", function (test) {
     // BEFORE
     Meteor.userId = sinon.spy();
-    var delta = {a: ["a"]};
+    var postLatest = {a: "a"};
     var instance = {
-        _runAllowRules: R.T,
-        _runDenyRules: R.F,
         insert: sinon.spy()
     };
+    rulesEngine.setupRulesEngine(instance);
+    rulesEngine.registerRules(instance, "allow", {
+        insert: R.T
+    });
+    rulesEngine.registerRules(instance, "deny", {
+        insert: R.F
+    });
     // TEST
-    methods.insert.call({}, instance, delta, "");
+    methods.insert.call({}, instance, postLatest, "");
     test.isTrue(instance.insert.called);
     // AFTER
     Meteor.userId = null;
@@ -105,16 +116,19 @@ Tinytest.add("methods - commit - argument type checking", function (test) {
 Tinytest.add("methods - commit - allow rules", function (test) {
     // BEFORE
     Meteor.userId = sinon.spy();
-    var delta = {a: ["a"]};
+    var postLatest = {a: "a"};
     var instance = {
-        _runAllowRules: R.F,
         _collection: {
             findOne: R.always({
                 latest: {}
             })
         }
     };
-    var commit = methods.commit.bind({}, instance, "", delta, "");
+    rulesEngine.setupRulesEngine(instance);
+    rulesEngine.registerRules(instance, "allow", {
+        commit: R.F
+    });
+    var commit = methods.commit.bind({}, instance, "", postLatest, "");
     // TEST
     test.throws(commit, function (e) {
         return (
@@ -129,17 +143,22 @@ Tinytest.add("methods - commit - allow rules", function (test) {
 Tinytest.add("methods - commit - deny rules", function (test) {
     // BEFORE
     Meteor.userId = sinon.spy();
-    var delta = {a: ["a"]};
+    var postLatest = {a: "a"};
     var instance = {
-        _runAllowRules: R.T,
-        _runDenyRules: R.T,
         _collection: {
             findOne: R.always({
                 latest: {}
             })
         }
     };
-    var commit = methods.commit.bind({}, instance, "", delta, "");
+    rulesEngine.setupRulesEngine(instance);
+    rulesEngine.registerRules(instance, "allow", {
+        commit: R.T
+    });
+    rulesEngine.registerRules(instance, "deny", {
+        commit: R.T
+    });
+    var commit = methods.commit.bind({}, instance, "", postLatest, "");
     // TEST
     test.throws(commit, function (e) {
         return (
@@ -154,10 +173,8 @@ Tinytest.add("methods - commit - deny rules", function (test) {
 Tinytest.add("methods - commit - call commit", function (test) {
     // BEFORE
     Meteor.userId = sinon.spy();
-    var delta = {a: ["a"]};
+    var postLatest = {a: "a"};
     var instance = {
-        _runAllowRules: R.T,
-        _runDenyRules: R.F,
         _collection: {
             findOne: R.always({
                 latest: {}
@@ -165,8 +182,15 @@ Tinytest.add("methods - commit - call commit", function (test) {
         },
         commit: sinon.spy()
     };
+    rulesEngine.setupRulesEngine(instance);
+    rulesEngine.registerRules(instance, "allow", {
+        commit: R.T
+    });
+    rulesEngine.registerRules(instance, "deny", {
+        commit: R.F
+    });
     // TEST
-    methods.commit.call({}, instance, "", delta, "");
+    methods.commit.call({}, instance, "", postLatest, "");
     test.isTrue(instance.commit.called);
     // AFTER
     Meteor.userId = null;

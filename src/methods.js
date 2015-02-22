@@ -4,6 +4,7 @@ var R   = Npm.require("ramda");
 methods = {
 
     insert: function (instance, postLatest, message) {
+
         // Type-checking arguments
         utils.ensure(
             R.is(Object, postLatest),
@@ -13,82 +14,98 @@ methods = {
             R.is(String, message),
             "Second parameter `message` must be a string"
         );
-        // Get the userId: we don't user `this.userId` because when cascading
-        // method calls on the server it gets lost, while `Meteor.userId()`
-        // doesn't
-        var userId = Meteor.userId();
+
         // Run allow rules
-        var allowed = instance._runAllowRules(
+        var allowResults = rulesEngine.runRules(
+            instance,
+            "allow",
             "insert",
-            userId,
+            this.userId,
             null,
-            R.clone(postLatest)
+            R.clone(postLatest),
+            message
         );
+        // Ensure at least one of the allow calls returned true
         utils.ensure(
-            R.eq(true, allowed),
+            R.any(R.identity, allowResults),
             "No allow rule returned true, aborting"
         );
+
         // Run deny rules
-        var denied = instance._runDenyRules(
+        var denyResults = rulesEngine.runRules(
+            instance,
+            "deny",
             "insert",
-            userId,
+            this.userId,
             null,
-            R.clone(postLatest)
+            R.clone(postLatest),
+            message
         );
+        // Ensure none of the deny calls returned true
         utils.ensure(
-            R.eq(false, denied),
+            !R.any(R.identity, denyResults),
             "Some deny rule(s) returned true, aborting"
         );
+
         // Perform the insert
-        return instance.insert(userId, postLatest, message);
+        return instance.insert(this.userId, postLatest, message);
+
     },
 
-    commit: function (instance, documentId, delta, message) {
+    commit: function (instance, documentId, postLatest, message) {
+
         // Type-checking arguments
         utils.ensure(
             R.is(String, documentId),
             "First parameter `documentId` must be a string"
         );
         utils.ensure(
-            R.is(Object, delta),
+            R.is(Object, postLatest),
             "Second parameter `delta` must be an object"
         );
         utils.ensure(
             R.is(String, message),
             "Third parameter `message` must be a string"
         );
-        // Get the userId: we don't user `this.userId` because when cascading
-        // method calls on the server it gets lost, while `Meteor.userId()`
-        // doesn't
-        var userId = Meteor.userId();
-        // Construct the pre and post latest objects
+
+        // Get the doc (needed for the preLatest object)
         var doc = instance._collection.findOne({_id: documentId});
-        var preLatest = R.clone(doc.latest);
-        var postLatest = jdp.patch(R.clone(preLatest), delta);
+
         // Run allow rules
-        var allowed = instance._runAllowRules(
+        var allowResults = rulesEngine.runRules(
+            instance,
+            "allow",
             "commit",
-            userId,
-            R.clone(preLatest),
-            R.clone(postLatest)
+            this.userId,
+            R.clone(doc.latest),
+            R.clone(postLatest),
+            message
         );
+        // Ensure at least one of the allow calls returned true
         utils.ensure(
-            R.eq(true, allowed),
+            R.any(R.identity, allowResults),
             "No allow rule returned true, aborting"
         );
+
         // Run deny rules
-        var denied = instance._runDenyRules(
+        var denyResults = rulesEngine.runRules(
+            instance,
+            "deny",
             "commit",
-            userId,
-            R.clone(preLatest),
-            R.clone(postLatest)
+            this.userId,
+            R.clone(doc.latest),
+            R.clone(postLatest),
+            message
         );
+        // Ensure none of the deny calls returned true
         utils.ensure(
-            R.eq(false, denied),
+            !R.any(R.identity, denyResults),
             "Some deny rule(s) returned true, aborting"
         );
+
         // Perform the commit
-        return instance.commit(userId, documentId, delta, message);
+        return instance.commit(this.userId, documentId, postLatest, message);
+
     }
 
 };

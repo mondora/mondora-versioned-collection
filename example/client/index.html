@@ -1,0 +1,54 @@
+<head>
+    <script src="http://benjamine.github.io/jsondiffpatch/build/jsondiffpatch.min.js"></script>
+    <script src="http://benjamine.github.io/jsondiffpatch/build/jsondiffpatch-formatters.min.js"></script>
+</head>
+
+<body>
+    <br />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <h2>Insert book</h2>
+                <hr />
+                {{> insertBook}}
+            </div>
+            <div class="col-sm-9">
+                <h2>Books list</h2>
+                <hr />
+                {{> booksList}}
+            </div>
+        </div>
+    </div>
+</body>
+
+<template name="insertBook">
+    {{> quickForm schema="BookSchema" id="insertBookForm"}}
+</template>
+
+<template name="booksList">
+    {{#each books}}
+        {{> bookDetail}}
+    {{/each}}
+</template>
+
+<template name="bookDetail">
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingOne">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-target="#panel{{id}}">
+                    {{latest.title}}
+                </a>
+            </h4>
+        </div>
+        <div class="collapse panel-collapse" id="panel{{id}}">
+            <div class="panel-body">
+                <div class="col-sm-6">
+                    <pre>{{toJson}}</pre>
+                </div>
+                <div class="col-sm-6">
+                    {{> quickForm schema="BookSchema" doc=latest buttonContent="Update" id=_id}}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

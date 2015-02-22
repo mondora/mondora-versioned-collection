@@ -9,66 +9,18 @@ Tinytest.add("VersionedCollection - constructor - constructor", function (test) 
     // BEFORE
     sinon.stub(Mongo, "Collection");
     sinon.stub(VersionedCollection.prototype, "_registerMethods");
-    sinon.stub(ruleEngine, "setupRuleEngine");
+    sinon.stub(rulesEngine, "setupRulesEngine");
     // TEST
     var vc = new VersionedCollection("name", "schema");
     test.isTrue(Mongo.Collection.calledWith("name"));
     test.isTrue(Mongo.Collection.calledWithNew());
     test.equal(vc._schema, "schema");
     test.isTrue(VersionedCollection.prototype._registerMethods.called);
-    test.isTrue(ruleEngine.setupRuleEngine.calledWith(vc));
+    test.isTrue(rulesEngine.setupRulesEngine.calledWith(vc));
     // AFTER
     Mongo.Collection.restore();
     VersionedCollection.prototype._registerMethods.restore();
-    ruleEngine.setupRuleEngine.restore();
-});
-
-/*
-*   VersionedCollection.prototype._runAllowRules
-*/
-
-Tinytest.add("VersionedCollection - _runAllowRules - one true", function (test) {
-    // BEFORE
-    sinon.stub(ruleEngine, "runRules", R.always([true, false]));
-    // TEST
-    var result = VersionedCollection.prototype._runAllowRules.call({});
-    test.isTrue(result);
-    // AFTER
-    ruleEngine.runRules.restore();
-});
-
-Tinytest.add("VersionedCollection - _runAllowRules - zero true", function (test) {
-    // BEFORE
-    sinon.stub(ruleEngine, "runRules", R.always([false, false]));
-    // TEST
-    var result = VersionedCollection.prototype._runAllowRules.call({});
-    test.isFalse(result);
-    // AFTER
-    ruleEngine.runRules.restore();
-});
-
-/*
-*   VersionedCollection.prototype._runDenyRules
-*/
-
-Tinytest.add("VersionedCollection - _runDenyRules - one true", function (test) {
-    // BEFORE
-    sinon.stub(ruleEngine, "runRules", R.always([true, false]));
-    // TEST
-    var result = VersionedCollection.prototype._runDenyRules.call({});
-    test.isTrue(result);
-    // AFTER
-    ruleEngine.runRules.restore();
-});
-
-Tinytest.add("VersionedCollection - _runDenyRules - zero true", function (test) {
-    // BEFORE
-    sinon.stub(ruleEngine, "runRules", R.always([false, false]));
-    // TEST
-    var result = VersionedCollection.prototype._runDenyRules.call({});
-    test.isFalse(result);
-    // AFTER
-    ruleEngine.runRules.restore();
+    rulesEngine.setupRulesEngine.restore();
 });
 
 /*
@@ -97,14 +49,14 @@ Tinytest.add("VersionedCollection - _registerMethods - registration", function (
 
 Tinytest.add("VersionedCollection - allow - proxy", function (test) {
     // BEFORE
-    sinon.stub(ruleEngine, "registerRules");
+    sinon.stub(rulesEngine, "registerRules");
     var instance = {};
     var ruleSet = {};
     // TEST
     VersionedCollection.prototype.allow.call(instance, ruleSet);
-    test.isTrue(ruleEngine.registerRules.calledWith(instance, "allow", ruleSet));
+    test.isTrue(rulesEngine.registerRules.calledWith(instance, "allow", ruleSet));
     // AFTER
-    ruleEngine.registerRules.restore();
+    rulesEngine.registerRules.restore();
 });
 
 /*
@@ -113,14 +65,14 @@ Tinytest.add("VersionedCollection - allow - proxy", function (test) {
 
 Tinytest.add("VersionedCollection - deny - proxy", function (test) {
     // BEFORE
-    sinon.stub(ruleEngine, "registerRules");
+    sinon.stub(rulesEngine, "registerRules");
     var instance = {};
     var ruleSet = {};
     // TEST
     VersionedCollection.prototype.deny.call(instance, ruleSet);
-    test.isTrue(ruleEngine.registerRules.calledWith(instance, "deny", ruleSet));
+    test.isTrue(rulesEngine.registerRules.calledWith(instance, "deny", ruleSet));
     // AFTER
-    ruleEngine.registerRules.restore();
+    rulesEngine.registerRules.restore();
 });
 
 /*
@@ -166,8 +118,10 @@ Tinytest.add("VersionedCollection - findOne - proxy", function (test) {
 Tinytest.add("VersionedCollection - insert - schema check", function (test) {
     // BEFORE
     sinon.stub(Match, "test", R.F);
-    var delta = {a: ["a"]};
-    var insert = VersionedCollection.prototype.insert.bind({}, "", delta, "");
+    var instance = {};
+    hooksEngine.setupHooksEngine(instance);
+    var postLatest = {a: "a"};
+    var insert = VersionedCollection.prototype.insert.bind(instance, "", postLatest, "");
     // TEST
     test.throws(insert, function (e) {
         return (
@@ -188,9 +142,9 @@ Tinytest.add("VersionedCollection - insert - call _collection.insert", function 
         }
     };
     hooksEngine.setupHooksEngine(instance);
-    var delta = {a: ["a"]};
+    var postLatest = {a: "a"};
     // TEST
-    VersionedCollection.prototype.insert.call(instance, "", delta, "");
+    VersionedCollection.prototype.insert.call(instance, "", postLatest, "");
     test.isTrue(instance._collection.insert.called);
     // AFTER
     Match.test.restore();
@@ -210,8 +164,9 @@ Tinytest.add("VersionedCollection - commit - schema check", function (test) {
             })
         }
     };
-    var delta = {a: ["a"]};
-    var insert = VersionedCollection.prototype.commit.bind(instance, "", "", delta, "");
+    hooksEngine.setupHooksEngine(instance);
+    var postLatest = {a: "a"};
+    var insert = VersionedCollection.prototype.commit.bind(instance, "", "", postLatest, "");
     // TEST
     test.throws(insert, function (e) {
         return (
@@ -235,9 +190,9 @@ Tinytest.add("VersionedCollection - commit - call _collection.update", function 
         }
     };
     hooksEngine.setupHooksEngine(instance);
-    var delta = {a: ["a"]};
+    var postLatest = {a: "a"};
     // TEST
-    VersionedCollection.prototype.commit.call(instance, "", "", delta, "");
+    VersionedCollection.prototype.commit.call(instance, "", "", postLatest, "");
     test.isTrue(instance._collection.update.called);
     // AFTER
     Match.test.restore();

@@ -14,7 +14,7 @@ Package.onUse(function (api) {
     api.addFiles([
         "src/utils.js",
         "src/methods.js",
-        "src/rule-engine.js",
+        "src/rules-engine.js",
         "src/hooks-engine.js",
         "src/versioned-collection.js"
     ], "server");
@@ -28,17 +28,17 @@ Package.onTest(function (api) {
     api.addFiles([
         "src/utils.js",
         "src/methods.js",
-        "src/rule-engine.js",
+        "src/rules-engine.js",
         "src/hooks-engine.js",
         "src/versioned-collection.js"
     ], "server");
     // Test files
     api.addFiles([
-        "test/utils.unit.js",
-        "test/hooks-engine.unit.js",
-        "test/rule-engine.unit.js",
-        "test/methods.unit.js",
-        "test/versioned-collection.unit.js"
+        "test/unit/utils.js",
+        "test/unit/hooks-engine.js",
+        "test/unit/rules-engine.js",
+        "test/unit/methods.js",
+        "test/unit/versioned-collection.js"
     ], "server");
 });
 

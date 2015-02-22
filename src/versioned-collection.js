@@ -33,53 +33,22 @@ VersionedCollection = function (name, schema) {
     this._collection = new Mongo.Collection(name);
     this._schema = schema || Match.Any;
     this._registerMethods();
-    ruleEngine.setupRuleEngine(this);
+    rulesEngine.setupRulesEngine(this);
     hooksEngine.setupHooksEngine(this);
 };
 
 VersionedCollection.prototype = {
 
-    /*
-    *   TODO remove this two methods and call the ruleEngine directly from
-    *   the methods, as we do for the hooksEngine
-    */
-
-    _runAllowRules: function (method, userId, preLatest, postLatest) {
-        var result = ruleEngine.runRules(
-            this,
-            "allow",
-            method,
-            userId,
-            preLatest,
-            postLatest
-        );
-        // Return true if any of the allow calls returns true
-        return R.any(R.identity, result);
-    },
-
-    _runDenyRules: function (method, userId, preLatest, postLatest) {
-        var result = ruleEngine.runRules(
-            this,
-            "deny",
-            method,
-            userId,
-            preLatest,
-            postLatest
-        );
-        // Return true if any of the deny calls returns true
-        return R.any(R.identity, result);
-    },
-
     _registerMethods: function () {
         var self = this;
-        var insertMethodName = "VersionedCollection:" + this._name + ":insert";
-        var commitMethodName = "VersionedCollection:" + this._name + ":commit";
+        var insertMethodName = "VersionedCollection:" + self._name + ":insert";
+        var commitMethodName = "VersionedCollection:" + self._name + ":commit";
         var meteorMethods = {};
-        meteorMethods[insertMethodName] = function (delta, message) {
-            methods.insert(self, delta, message);
+        meteorMethods[insertMethodName] = function (postLatest, message) {
+            methods.insert.call(this, self, postLatest, message);
         };
-        meteorMethods[commitMethodName] = function (documentId, delta, message) {
-            methods.commit(self, documentId, delta, message);
+        meteorMethods[commitMethodName] = function (documentId, postLatest, message) {
+            methods.commit.call(this, self, documentId, postLatest, message);
         };
         Meteor.methods(meteorMethods);
     },
@@ -89,11 +58,11 @@ VersionedCollection.prototype = {
     */
 
     allow: function (ruleSet) {
-        ruleEngine.registerRules(this, "allow", ruleSet);
+        rulesEngine.registerRules(this, "allow", ruleSet);
     },
 
     deny: function (ruleSet) {
-        ruleEngine.registerRules(this, "deny", ruleSet);
+        rulesEngine.registerRules(this, "deny", ruleSet);
     },
 
     /*
@@ -113,11 +82,6 @@ VersionedCollection.prototype = {
     */
 
     insert: function (userId, postLatest, message) {
-        // Ensure postLatest matches the schema
-        utils.ensure(
-            Match.test(postLatest, this._schema),
-            "Latest after commit doesn't match schema, aborting"
-        );
         // Run before hooks
         var beforeResult = hooksEngine.runBeforeHooks(
             this,
@@ -131,6 +95,11 @@ VersionedCollection.prototype = {
         utils.ensure(
             R.eq(false, beforeResult.aborted),
             "Some before hook aborted the operation"
+        );
+        // Ensure postLatest matches the schema
+        utils.ensure(
+            Match.test(postLatest, this._schema),
+            "Latest after commit doesn't match schema, aborting"
         );
         // Construct the delta object
         var delta = jdp.diff({}, beforeResult.postLatest);
@@ -164,11 +133,6 @@ VersionedCollection.prototype = {
     commit: function (userId, documentId, postLatest, message) {
         // Construct the post latest object
         var doc = this._collection.findOne({_id: documentId});
-        // Ensure it matches the schema
-        utils.ensure(
-            Match.test(postLatest, this._schema),
-            "Latest after commit doesn't match schema, aborting"
-        );
         // Run before hooks
         var beforeResult = hooksEngine.runBeforeHooks(
             this,
@@ -182,6 +146,11 @@ VersionedCollection.prototype = {
         utils.ensure(
             R.eq(false, beforeResult.aborted),
             "Some before hook aborted the operation"
+        );
+        // Ensure it matches the schema
+        utils.ensure(
+            Match.test(postLatest, this._schema),
+            "Latest after commit doesn't match schema, aborting"
         );
         // Construct the delta object
         var delta = jdp.diff(doc.latest, beforeResult.postLatest);
@@ -220,12 +189,12 @@ VersionedCollection.prototype = {
     *   Query API
     */
 
-    find: function (selector, options) {
-        return this._collection.find(selector, options);
+    find: function (/* selector, options */) {
+        return this._collection.find.apply(this._collection, arguments);
     },
 
-    findOne: function (selector, options) {
-        return this._collection.findOne(selector, options);
+    findOne: function (/* selector, options */) {
+        return this._collection.findOne.apply(this._collection, arguments);
     }
 
 };
