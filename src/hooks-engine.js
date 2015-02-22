@@ -29,13 +29,13 @@ hooksEngine = {
     *   - modify the `postLatest` object, by calling
     *     `this.replacePostLatest`, passing it the new `postLatest` object
     *
-    *  Hooks run in the same order they are registered.
+    *  Hooks are run in the same order they are registered.
     *
-    *  If a hook aborts the operation, subsequent hooks won't run.
+    *  If a hook aborts the operation, subsequent hooks won't be run.
     *
     *  If a hook replaces the `postLatest` object, subsequent hooks will receive
     *  the replaced in their `postLatest` argument. If they wish to get the
-    *  original `postLatest` object, they can call `this.getOriginalPostLatest`
+    *  original `postLatest` object, they can call `this.getOriginalPostLatest`.
     *
     */
 
@@ -56,7 +56,7 @@ hooksEngine = {
                 result.postLatest = replacement;
             },
             getOriginalPostLatest: function () {
-                return postLatest;
+                return R.clone(postLatest);
             }
         };
 
@@ -89,7 +89,36 @@ hooksEngine = {
 
     },
 
-    runAfterHooks: function (instance, type, method, userId, preLatest, postLatest, message) {
+    /*
+    *  After hooks are run in the same order they are registered.
+    *
+    *  When after hooks are run, the operation has already been carried out, so
+    *  the hooks can't do anything to effect it.
+    *
+    */
+
+    runAfterHooks: function (instance, method, userId, preLatest, postLatest, message) {
+
+        // Run hooks
+        R.forEach(function (action) {
+            if (method === "insert") {
+                action.call(
+                    null,
+                    userId,
+                    R.clone(postLatest),
+                    message
+                );
+            }
+            if (method === "commit") {
+                action.call(
+                    null,
+                    userId,
+                    R.clone(preLatest),
+                    R.clone(postLatest),
+                    message
+                );
+            }
+        }, instance[getPropertyName("after")][method]);
 
     }
 

@@ -187,6 +187,7 @@ Tinytest.add("VersionedCollection - insert - call _collection.insert", function 
             insert: sinon.spy()
         }
     };
+    hooksEngine.setupHooksEngine(instance);
     var delta = {a: ["a"]};
     // TEST
     VersionedCollection.prototype.insert.call(instance, "", delta, "");
@@ -233,6 +234,7 @@ Tinytest.add("VersionedCollection - commit - call _collection.update", function 
             })
         }
     };
+    hooksEngine.setupHooksEngine(instance);
     var delta = {a: ["a"]};
     // TEST
     VersionedCollection.prototype.commit.call(instance, "", "", delta, "");

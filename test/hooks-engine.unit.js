@@ -1,6 +1,8 @@
 var R     = Npm.require("ramda");
 var sinon = Npm.require("sinon");
 
+
+
 /*
 *   setupHooksEngine
 */
@@ -21,6 +23,8 @@ Tinytest.add("hooksEngine - setupHooksEngine - setup", function (test) {
         }
     });
 });
+
+
 
 /*
 *   registerHooks
@@ -58,6 +62,8 @@ Tinytest.add("hooksEngine - registerHooks - multiple registration", function (te
     test.equal(instance._beforeHooks.commit[1], "commitAgain");
 });
 
+
+
 /*
 *   runBeforeHooks
 */
@@ -73,11 +79,11 @@ Tinytest.add("hooksEngine - runBeforeHooks - single hook", function (test) {
         commit: commit
     });
     // TEST
-    hooksEngine.runBeforeHooks(instance, "insert", "userId", "preLatest", "postLatest");
-    test.isTrue(insert.calledWith("userId", "postLatest"));
+    hooksEngine.runBeforeHooks(instance, "insert", "userId", "preLatest", "postLatest", "message");
+    test.isTrue(insert.calledWith("userId", "postLatest", "message"));
     test.equal(insert.callCount, 1);
-    hooksEngine.runBeforeHooks(instance, "commit", "userId", "preLatest", "postLatest");
-    test.isTrue(commit.calledWith("userId", "preLatest", "postLatest"));
+    hooksEngine.runBeforeHooks(instance, "commit", "userId", "preLatest", "postLatest", "message");
+    test.isTrue(commit.calledWith("userId", "preLatest", "postLatest", "message"));
     test.equal(commit.callCount, 1);
 });
 
@@ -100,12 +106,48 @@ Tinytest.add("hooksEngine - runBeforeHooks - multiple hooks", function (test) {
         commit: commit
     });
     // TEST
-    hooksEngine.runBeforeHooks(instance, "insert", "userId", "preLatest", "postLatest");
-    test.isTrue(insert.calledWith("userId", "postLatest"));
+    hooksEngine.runBeforeHooks(instance, "insert", "userId", "preLatest", "postLatest", "message");
+    test.isTrue(insert.calledWith("userId", "postLatest", "message"));
     test.equal(insert.callCount, 3);
-    hooksEngine.runBeforeHooks(instance, "commit", "userId", "preLatest", "postLatest");
-    test.isTrue(commit.calledWith("userId", "preLatest", "postLatest"));
+    hooksEngine.runBeforeHooks(instance, "commit", "userId", "preLatest", "postLatest", "message");
+    test.isTrue(commit.calledWith("userId", "preLatest", "postLatest", "message"));
     test.equal(commit.callCount, 3);
+});
+
+Tinytest.add("hooksEngine - runBeforeHooks - hooks are run in registration order", function (test) {
+    // BEFORE
+    var instance = {};
+    hooksEngine.setupHooksEngine(instance);
+    var insertOrder = [];
+    var getInsert = function (n) {
+        return function () {
+            insertOrder.push(n);
+        };
+    };
+    var commitOrder = [];
+    var getCommit = function (n) {
+        return function () {
+            commitOrder.push(n);
+        };
+    };
+    var commit = sinon.spy();
+    hooksEngine.registerHooks(instance, "before", {
+        insert: getInsert(0),
+        commit: getCommit(0)
+    });
+    hooksEngine.registerHooks(instance, "before", {
+        insert: getInsert(1),
+        commit: getCommit(1)
+    });
+    hooksEngine.registerHooks(instance, "before", {
+        insert: getInsert(2),
+        commit: getCommit(2)
+    });
+    // TEST
+    hooksEngine.runBeforeHooks(instance, "insert", "userId", "preLatest", "postLatest", "message");
+    test.equal(insertOrder, [0, 1, 2]);
+    hooksEngine.runBeforeHooks(instance, "commit", "userId", "preLatest", "postLatest", "message");
+    test.equal(commitOrder, [0, 1, 2]);
 });
 
 Tinytest.add("hooksEngine - runBeforeHooks - context has an abort function", function (test) {
@@ -234,4 +276,92 @@ Tinytest.add("hooksEngine - runBeforeHooks - getOriginalPostLatest gets the orig
     // TEST
     hooksEngine.runBeforeHooks(instance, "insert", "userId", "preLatest", originalPostLatest);
     test.equal(gottenOriginalPostLatest, originalPostLatest);
+});
+
+
+
+/*
+*   runAfterHooks
+*/
+
+Tinytest.add("hooksEngine - runAfterHooks - single hook", function (test) {
+    // BEFORE
+    var instance = {};
+    hooksEngine.setupHooksEngine(instance);
+    var insert = sinon.spy();
+    var commit = sinon.spy();
+    hooksEngine.registerHooks(instance, "after", {
+        insert: insert,
+        commit: commit
+    });
+    // TEST
+    hooksEngine.runAfterHooks(instance, "insert", "userId", null, "postLatest", "message");
+    test.isTrue(insert.calledWith("userId", "postLatest", "message"));
+    test.equal(insert.callCount, 1);
+    hooksEngine.runAfterHooks(instance, "commit", "userId", "preLatest", "postLatest", "message");
+    test.isTrue(commit.calledWith("userId", "preLatest", "postLatest", "message"));
+    test.equal(commit.callCount, 1);
+});
+
+Tinytest.add("hooksEngine - runAfterHooks - multiple hooks", function (test) {
+    // BEFORE
+    var instance = {};
+    hooksEngine.setupHooksEngine(instance);
+    var insert = sinon.spy();
+    var commit = sinon.spy();
+    hooksEngine.registerHooks(instance, "after", {
+        insert: insert,
+        commit: commit
+    });
+    hooksEngine.registerHooks(instance, "after", {
+        insert: insert,
+        commit: commit
+    });
+    hooksEngine.registerHooks(instance, "after", {
+        insert: insert,
+        commit: commit
+    });
+    // TEST
+    hooksEngine.runAfterHooks(instance, "insert", "userId", "preLatest", "postLatest", "message");
+    test.isTrue(insert.calledWith("userId", "postLatest", "message"));
+    test.equal(insert.callCount, 3);
+    hooksEngine.runAfterHooks(instance, "commit", "userId", "preLatest", "postLatest", "message");
+    test.isTrue(commit.calledWith("userId", "preLatest", "postLatest", "message"));
+    test.equal(commit.callCount, 3);
+});
+
+Tinytest.add("hooksEngine - runAfterHooks - hooks are run in registration order", function (test) {
+    // BEFORE
+    var instance = {};
+    hooksEngine.setupHooksEngine(instance);
+    var insertOrder = [];
+    var getInsert = function (n) {
+        return function () {
+            insertOrder.push(n);
+        };
+    };
+    var commitOrder = [];
+    var getCommit = function (n) {
+        return function () {
+            commitOrder.push(n);
+        };
+    };
+    var commit = sinon.spy();
+    hooksEngine.registerHooks(instance, "after", {
+        insert: getInsert(0),
+        commit: getCommit(0)
+    });
+    hooksEngine.registerHooks(instance, "after", {
+        insert: getInsert(1),
+        commit: getCommit(1)
+    });
+    hooksEngine.registerHooks(instance, "after", {
+        insert: getInsert(2),
+        commit: getCommit(2)
+    });
+    // TEST
+    hooksEngine.runAfterHooks(instance, "insert", "userId", "preLatest", "postLatest", "message");
+    test.equal(insertOrder, [0, 1, 2]);
+    hooksEngine.runAfterHooks(instance, "commit", "userId", "preLatest", "postLatest", "message");
+    test.equal(commitOrder, [0, 1, 2]);
 });

@@ -133,7 +133,7 @@ VersionedCollection.prototype = {
             "Some before hook aborted the operation"
         );
         // Construct the delta object
-        var delta = jdp.diff({}, result.postLatest);
+        var delta = jdp.diff({}, beforeResult.postLatest);
         // Perform the insert
         var now = Date.now();
         var ret = this._collection.insert({
@@ -143,11 +143,19 @@ VersionedCollection.prototype = {
                 delta: delta,
                 message: message
             }],
-            latest: result.postLatest,
+            latest: beforeResult.postLatest,
             lastModifiedOn: now,
             lastModifiedBy: userId
         });
-        /* TODO */
+        // Run after hooks
+        hooksEngine.runAfterHooks(
+            this,
+            "insert",
+            userId,
+            null,
+            R.clone(beforeResult.postLatest),
+            message
+        );
         // Return the value returned by the Mongo.Collection.insert call, to
         // keep its same return signature
         return ret;
@@ -176,7 +184,7 @@ VersionedCollection.prototype = {
             "Some before hook aborted the operation"
         );
         // Construct the delta object
-        var delta = jdp.diff(doc.latest, result.postLatest);
+        var delta = jdp.diff(doc.latest, beforeResult.postLatest);
         // Perform the update
         var now = Date.now();
         var ret = this._collection.update({_id: documentId}, {
@@ -189,13 +197,20 @@ VersionedCollection.prototype = {
                 }
             },
             $set: {
-                latest: postLatest,
+                latest: beforeResult.postLatest,
                 lastModifiedBy: userId,
                 lastModifiedOn: now
             }
         });
-        // Run after actions
-        /* TODO */
+        // Run after hooks
+        hooksEngine.runAfterHooks(
+            this,
+            "commit",
+            userId,
+            R.clone(doc.latest),
+            R.clone(beforeResult.postLatest),
+            message
+        );
         // Return the value returned by the Mongo.Collection.update call, to
         // keep its same return signature
         return ret;
