@@ -1,5 +1,4 @@
-var jdp = Npm.require("jsondiffpatch");
-var R   = Npm.require("ramda");
+var R = Npm.require("ramda");
 
 methods = {
 
@@ -61,7 +60,7 @@ methods = {
         );
         utils.ensure(
             R.is(Object, postLatest),
-            "Second parameter `delta` must be an object"
+            "Second parameter `postLatest` must be an object"
         );
         utils.ensure(
             R.is(String, message),
