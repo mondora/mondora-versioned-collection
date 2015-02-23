@@ -68,8 +68,12 @@ methods = {
             "Third parameter `message` must be a string"
         );
 
-        // Get the doc (needed for the preLatest object)
+        // Get the doc (needed for the preLatest object) and ensure it exists
         var doc = instance._collection.findOne({_id: documentId});
+        utils.ensure(
+            doc,
+            "Document not found"
+        );
 
         // Run allow rules
         var allowResults = rulesEngine.runRules(

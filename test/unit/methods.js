@@ -113,6 +113,27 @@ Tinytest.add("methods - commit - argument type checking", function (test) {
     });
 });
 
+Tinytest.add("methods - commit - error if documentId is phony", function (test) {
+    // BEFORE
+    Meteor.userId = sinon.spy();
+    var postLatest = {a: "a"};
+    var instance = {
+        _collection: {
+            findOne: R.always(undefined)
+        }
+    };
+    var commit = methods.commit.bind({}, instance, "", postLatest, "");
+    // TEST
+    test.throws(commit, function (e) {
+        return (
+            e.errorType === "Meteor.Error" &&
+            e.reason === "Document not found"
+        );
+    });
+    // AFTER
+    Meteor.userId = null;
+});
+
 Tinytest.add("methods - commit - allow rules", function (test) {
     // BEFORE
     Meteor.userId = sinon.spy();
