@@ -102,7 +102,7 @@ Tinytest.add("methods - commit - argument type checking", function (test) {
     test.throws(R.lPartial(methods.commit, {}, ""), function (e) {
         return (
             e.errorType === "Meteor.Error" &&
-            e.reason === "Second parameter `delta` must be an object"
+            e.reason === "Second parameter `postLatest` must be an object"
         );
     });
     test.throws(R.lPartial(methods.commit, {}, "", {}), function (e) {
