@@ -1,7 +1,9 @@
 [![Build Status](https://travis-ci.org/mondora/mondora-versioned-collection.svg?branch=master)](https://travis-ci.org/mondora/mondora-versioned-collection)
-#mondora:versioned-collection
+# mondora:versioned-collection
 
-###Usage
+Versioned collections for meteor
+
+### Usage
 
 ```js
 // We use the jsondiffpatch library to calculate deltas. Here, we include it
@@ -29,7 +31,7 @@ var book_v1 = {
 Books.commit(user._id, bookId, book_v1, "Added published field");
 ```
 
-###Notes
+### Notes
 
 Internally, the collection keeps the following data structure for a versioned
 document.
@@ -59,7 +61,7 @@ Document structure:
 }
 ```
 
-###Hooks
+### Hooks
 
 Example:
 
