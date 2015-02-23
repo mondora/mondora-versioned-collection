@@ -98,7 +98,7 @@ VersionedCollection.prototype = {
         );
         // Ensure postLatest matches the schema
         utils.ensure(
-            Match.test(postLatest, this._schema),
+            Match.test(beforeResult.postLatest, this._schema),
             "Latest after commit doesn't match schema, aborting"
         );
         // Construct the delta object
@@ -131,8 +131,12 @@ VersionedCollection.prototype = {
     },
 
     commit: function (userId, documentId, postLatest, message) {
-        // Construct the post latest object
+        // Get the existing document and ensure it exists
         var doc = this._collection.findOne({_id: documentId});
+        utils.ensure(
+            doc,
+            "Document not found"
+        );
         // Run before hooks
         var beforeResult = hooksEngine.runBeforeHooks(
             this,
@@ -149,7 +153,7 @@ VersionedCollection.prototype = {
         );
         // Ensure it matches the schema
         utils.ensure(
-            Match.test(postLatest, this._schema),
+            Match.test(beforeResult.postLatest, this._schema),
             "Latest after commit doesn't match schema, aborting"
         );
         // Construct the delta object

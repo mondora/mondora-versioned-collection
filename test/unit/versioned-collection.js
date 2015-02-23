@@ -154,6 +154,27 @@ Tinytest.add("VersionedCollection - insert - call _collection.insert", function 
 *   VersionedCollection.prototype.commit
 */
 
+Tinytest.add("VersionedCollection - commit - error on phony documentId", function (test) {
+    // BEFORE
+    sinon.stub(Match, "test", R.F);
+    var instance = {
+        _collection: {
+            findOne: R.always(undefined)
+        }
+    };
+    var postLatest = {a: "a"};
+    var insert = VersionedCollection.prototype.commit.bind(instance, "", "", postLatest, "");
+    // TEST
+    test.throws(insert, function (e) {
+        return (
+            e.errorType === "Meteor.Error" &&
+            e.reason === "Document not found"
+        );
+    });
+    // AFTER
+    Match.test.restore();
+});
+
 Tinytest.add("VersionedCollection - commit - schema check", function (test) {
     // BEFORE
     sinon.stub(Match, "test", R.F);
