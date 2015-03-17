@@ -43,6 +43,34 @@ Tinytest.add("VersionedCollection - _registerMethods - registration", function (
     Meteor.methods.restore();
 });
 
+Tinytest.add("VersionedCollection - _registerMethods - correct return value", function (test) {
+    // BEFORE
+    var instance = {
+        _name: "collectionName"
+    };
+    sinon.stub(Meteor, "methods");
+    var oldMethods = methods;
+    methods = {
+        insert: sinon.spy(R.always("insert")),
+        commit: sinon.spy(R.always("commit"))
+    };
+    // TEST
+    VersionedCollection.prototype._registerMethods.call(instance);
+    test.isTrue(Meteor.methods.called);
+    var meteorMethods = Meteor.methods.firstCall.args[0];
+    test.equal(
+        meteorMethods["VersionedCollection:collectionName:insert"](),
+        "insert"
+    );
+    test.equal(
+        meteorMethods["VersionedCollection:collectionName:commit"](),
+        "commit"
+    );
+    // AFTER
+    Meteor.methods.restore();
+    methods = oldMethods;
+});
+
 /*
 *   VersionedCollection.prototype.allow
 */

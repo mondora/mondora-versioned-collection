@@ -45,10 +45,10 @@ VersionedCollection.prototype = {
         var commitMethodName = "VersionedCollection:" + self._name + ":commit";
         var meteorMethods = {};
         meteorMethods[insertMethodName] = function (postLatest, message) {
-            methods.insert.call(this, self, postLatest, message);
+            return methods.insert.call(this, self, postLatest, message);
         };
         meteorMethods[commitMethodName] = function (documentId, postLatest, message) {
-            methods.commit.call(this, self, documentId, postLatest, message);
+            return methods.commit.call(this, self, documentId, postLatest, message);
         };
         Meteor.methods(meteorMethods);
     },
