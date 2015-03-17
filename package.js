@@ -43,7 +43,7 @@ Package.onTest(function (api) {
 });
 
 Npm.depends({
-    "ramda": "0.9.1",
+    "ramda": "0.11.0",
     "jsondiffpatch": "0.1.27",
     "sinon": "1.12.2"
 });

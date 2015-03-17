@@ -7,13 +7,13 @@ var sinon = Npm.require("sinon");
 
 Tinytest.add("methods - insert - argument type checking", function (test) {
     // TEST
-    test.throws(R.lPartial(methods.insert, {}), function (e) {
+    test.throws(R.partial(methods.insert, {}), function (e) {
         return (
             e.errorType === "Meteor.Error" &&
             e.reason === "First parameter `postLatest` must be an object"
         );
     });
-    test.throws(R.lPartial(methods.insert, {}, {}), function (e) {
+    test.throws(R.partial(methods.insert, {}, {}), function (e) {
         return (
             e.errorType === "Meteor.Error" &&
             e.reason === "Second parameter `message` must be a string"
@@ -93,19 +93,19 @@ Tinytest.add("methods - insert - call insert", function (test) {
 
 Tinytest.add("methods - commit - argument type checking", function (test) {
     // TEST
-    test.throws(R.lPartial(methods.commit, {}), function (e) {
+    test.throws(R.partial(methods.commit, {}), function (e) {
         return (
             e.errorType === "Meteor.Error" &&
             e.reason === "First parameter `documentId` must be a string"
         );
     });
-    test.throws(R.lPartial(methods.commit, {}, ""), function (e) {
+    test.throws(R.partial(methods.commit, {}, ""), function (e) {
         return (
             e.errorType === "Meteor.Error" &&
             e.reason === "Second parameter `postLatest` must be an object"
         );
     });
-    test.throws(R.lPartial(methods.commit, {}, "", {}), function (e) {
+    test.throws(R.partial(methods.commit, {}, "", {}), function (e) {
         return (
             e.errorType === "Meteor.Error" &&
             e.reason === "Third parameter `message` must be a string"
