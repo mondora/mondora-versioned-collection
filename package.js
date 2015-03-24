@@ -1,7 +1,7 @@
 Package.describe({
     name: "mondora:versioned-collection",
     summary: "Versioned collections for meteor",
-    version: "0.2.1",
+    version: "0.2.2",
     git: "https://github.com/mondora/mondora-versioned-collection.git"
 });
 
