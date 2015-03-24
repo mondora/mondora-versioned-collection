@@ -227,6 +227,30 @@ Tinytest.add("VersionedCollection - commit - schema check", function (test) {
     Match.test.restore();
 });
 
+Tinytest.add("VersionedCollection - commit - nil delta check", function (test) {
+    // BEFORE
+    sinon.stub(Match, "test", R.T);
+    var instance = {
+        _collection: {
+            findOne: R.always({
+                latest: {a: "a"}
+            })
+        }
+    };
+    hooksEngine.setupHooksEngine(instance);
+    var postLatest = {a: "a"};
+    var insert = VersionedCollection.prototype.commit.bind(instance, "", "", postLatest, "");
+    // TEST
+    test.throws(insert, function (e) {
+        return (
+            e.errorType === "Meteor.Error" &&
+            e.reason === "Nothing changed, aborting"
+        );
+    });
+    // AFTER
+    Match.test.restore();
+});
+
 Tinytest.add("VersionedCollection - commit - call _collection.update", function (test) {
     // BEFORE
     sinon.stub(Match, "test", R.T);

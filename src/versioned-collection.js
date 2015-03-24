@@ -158,6 +158,13 @@ VersionedCollection.prototype = {
         );
         // Construct the delta object
         var delta = jdp.diff(doc.latest, beforeResult.postLatest);
+        // jsondiffpatch's diff function returns `undefined` if the diffed
+        // values are equal. In that case, obviously, there is nothing to
+        // commit, therefore we abort the operation.
+        utils.ensure(
+            !R.isNil(delta),
+            "Nothing changed, aborting"
+        );
         // Perform the update
         var now = Date.now();
         var ret = this._collection.update({_id: documentId}, {
